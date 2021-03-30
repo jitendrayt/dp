@@ -1,0 +1,163 @@
+/*
+
+Given an array of integers, find the length of the longest (strictly) increasing subsequence from the given array.
+
+Example 1:
+
+Input:
+N = 16
+A[]={0,8,4,12,2,10,6,14,1,9,5,13,3,11,7,15}
+Output: 6
+
+Strictly increasing means that we can't even have duplicates in the ans.
+
+*/
+
+// Solution 1: O(n^2)
+
+int longestSubsequence(int n, int a[])
+    {
+       
+       // your code here
+       //initilize with 1 beause even if there's 1 element in 
+       //the LIS it'll be of length 1.
+       
+       //N^2
+      vector<int> dp(n,1);
+      int ans=1;
+      for(int i=1;i<n;i++)
+      {
+          for(int j=0;j<i;j++)
+          {
+              if(a[j]<a[i])
+              {
+                dp[i]=max(dp[i],dp[j]+1);
+                ans=max(ans,dp[i]);
+              }
+          }
+      }
+      return ans; 
+   
+    }
+    
+    /*
+    
+    The above solution is very straight forward , we create a dp array of size equal to the input array and 
+    for each int X in the input array we find out the number of values which are smaller than than X and are 
+    part of a subsequence and whose's index is lesser than X.
+   
+   steps: -
+   
+   1. Initially we initilize all the values of the dp array by 1 because even if there is 1 element then our LIS
+   will at least be 1.
+   
+   2. Now we iterrate i =1 to i<n and we find all the values smaller than arr[i] by itertating j from j=0 to
+   j<i, and increasing the value of dp[i] by max of dp[i] or dp[j]+1( if arr[j] is smaller than arr[i] )
+   otherwise dp[i] will remain same.
+   
+   3. we do this for all the values of i , i==n-1 and also we keep checking teh maximum value and store in ans.
+   
+   4. we return ans.
+    
+    
+    
+    
+    */
+    
+    
+    //Solution 2: O(NlogN)  ref - https://www.youtube.com/watch?v=qW1O1a40-No
+    
+    
+    int binarySearch(vector<int> dp,int start,int end,int n)
+    {
+        // at the end if "n" is not in the array then 
+        // start will be at the immidiate greater element than n in all cases.
+        if(start>end) return start;
+        else
+        {
+            int mid=start+(end-start)/2;
+            if(n==dp[mid])
+            {
+                //if it's equal than it will be replaced because
+                //it's Longest"Increasing"Subsequence ie Strictly incresing
+              return mid;  
+            } 
+            
+            else if(n<dp[mid])
+            {
+                return binarySearch(dp,start,mid-1,n);
+            }
+            else
+            {
+                return binarySearch(dp,mid+1,end,n);
+            }
+        
+        }
+    }
+    
+    int longestSubsequenceOptimized(int arr[],int n)
+    {
+        vector<int> dp;
+        dp.push_back(arr[0]);
+        
+        for(int i=1;i<n;i++)
+        {
+            int lastIndex=dp.size()-1;
+            if(dp[lastIndex]<arr[i])
+            {
+                dp.push_back(arr[i]);
+                //size of dp will only increase if the new element
+                //is greater than the largest element of dp.
+            }
+            else
+            {
+                int newElement=arr[i];
+                //find equal or immediately larger element to be replaced.
+                int toBeReplaced=binarySearch(dp,0,dp.size()-1,newElement);
+                dp[toBeReplaced]=newElement;
+                
+            }
+        }
+        
+    return dp.size();
+    }
+    
+    int longestSubsequence(int n, int a[])
+    {
+    return longestSubsequenceOptimized(a,n);
+    }
+    
+    
+    /* 
+    
+    This approach is very intuitive/tricky but once you get it, it makes sense
+    
+    The main idea is that since the "longestIncreasingSubsequence" is sorted in increasing order why not 
+    incorporate binary search in the algorithm.
+    
+    steps:-
+    
+    1. Keep an auxillary array dp and insert the first element of the input array to initilize it since the 
+    length of teh LIS will be at least 1 if there's any element in the input array.
+    
+    2. Iterate over the input array starting from i=1(because arr[0] is already in the dp array) and while
+    iterating the input array arr, pushback any element that is greater than the top/largest/(n-1)th interger
+    of the dp array because if there's any element greater than the largest element of dp array that'll be 
+    a part of the LIS or it'll continue the LIS.
+    
+    3.Now if ,arr[i] is not greater than (n-1)th element of the dp array(largest) then do a binary search on dp array
+    and find the index of either an element equal to arr[i] or an element which is immediately greater than arr[i]
+    and replace that element with arr[i] , reason for doing this is that arr[i] might be part of a subsequence which
+    is largest and will get more values after arr[i](this will nnot increase the length of the current dp array
+    because we are replacing and thus the longest LIS will still be dp.size())
+    
+    remember dp array will not give us LIS values but will rather give us LIS length.
+    
+    4.continue doing step 2-3 till i reaches n-1.
+    
+    
+    
+    */
+    
+    
+    
